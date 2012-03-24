@@ -1,0 +1,12 @@
+[submodule "sites/all/modules/contrib/media"]
+	path = sites/all/modules/contrib/media
+	url = http://git.drupal.org/project/media.git
+[submodule "sites/all/modules/contrib/ctools"]
+	path = sites/all/modules/contrib/ctools
+	url = http://git.drupal.org/project/ctools.git
+[submodule "sites/all/modules/contrib/file_entity"]
+	path = sites/all/modules/contrib/file_entity
+	url = http://git.drupal.org/project/file_entity.git
+[submodule "sites/all/modules/contrib/coder"]
+	path = sites/all/modules/contrib/coder
+	url = http://git.drupal.org/project/coder.git

@@ -10,3 +10,33 @@
 [submodule "sites/all/modules/contrib/coder"]
 	path = sites/all/modules/contrib/coder
 	url = http://git.drupal.org/project/coder.git
+[submodule "sites/all/modules/contrib/civicrm"]
+	path = sites/all/modules/contrib/civicrm
+	url = /d/workspace/civicrm
+[submodule "sites/all/modules/contrib/og"]
+	path = sites/all/modules/contrib/og
+	url = http://git.drupal.org/project/og.git
+[submodule "sites/all/modules/contrib/rules"]
+	path = sites/all/modules/contrib/rules
+	url = http://git.drupal.org/project/rules.git
+[submodule "sites/all/modules/contrib/entity"]
+	path = sites/all/modules/contrib/entity
+	url = http://git.drupal.org/project/entity.git
+[submodule "sites/all/modules/contrib/entityreference"]
+	path = sites/all/modules/contrib/entityreference
+	url = http://git.drupal.org/project/entityreference.git
+[submodule "sites/all/modules/contrib/grammar_parser_lib"]
+	path = sites/all/modules/contrib/grammar_parser_lib
+	url = http://git.drupal.org/project/grammar_parser_lib.git
+[submodule "sites/all/modules/contrib/libraries"]
+	path = sites/all/modules/contrib/libraries
+	url = http://git.drupal.org/project/libraries.git
+[submodule "sites/all/modules/contrib/views"]
+	path = sites/all/modules/contrib/views
+	url = http://git.drupal.org/project/views.git
+[submodule "sites/all/modules/contrib/wysiwyg"]
+	path = sites/all/modules/contrib/wysiwyg
+	url = http://git.drupal.org/project/wysiwyg.git
+[submodule "sites/all/modules/contrib/emfield"]
+	path = sites/all/modules/contrib/emfield
+	url = http://git.drupal.org/project/emfield.git

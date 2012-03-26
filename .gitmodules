@@ -40,3 +40,12 @@
 [submodule "sites/all/modules/contrib/emfield"]
 	path = sites/all/modules/contrib/emfield
 	url = http://git.drupal.org/project/emfield.git
+[submodule "sites/all/modules/contrib/media_youtube"]
+	path = sites/all/modules/contrib/media_youtube
+	url = http://git.drupal.org/project/media_youtube.git
+[submodule "sites/all/modules/contrib/token"]
+	path = sites/all/modules/contrib/token
+	url = http://git.drupal.org/project/token.git
+[submodule "sites/all/modules/contrib/pathauto"]
+	path = sites/all/modules/contrib/pathauto
+	url = http://git.drupal.org/project/pathauto.git

@@ -49,3 +49,6 @@
 [submodule "sites/all/modules/contrib/pathauto"]
 	path = sites/all/modules/contrib/pathauto
 	url = http://git.drupal.org/project/pathauto.git
+[submodule "sites/all/modules/custom/boosted"]
+	path = sites/all/modules/custom/boosted
+	url = git@github.com:geekdenz/Boosted-Custom-Modules.git

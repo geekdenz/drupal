@@ -52,3 +52,6 @@
 [submodule "sites/all/modules/custom/boosted"]
 	path = sites/all/modules/custom/boosted
 	url = git@github.com:geekdenz/Boosted-Custom-Modules.git
+[submodule "sites/all/modules/custom/autosave"]
+	path = sites/all/modules/custom/autosave
+	url = git@github.com:geekdenz/drupal-autosave.git

@@ -12,7 +12,7 @@
 	url = http://git.drupal.org/project/coder.git
 [submodule "sites/all/modules/contrib/civicrm"]
 	path = sites/all/modules/contrib/civicrm
-	url = /d/workspace/civicrm
+	url = git://github.com/geekdenz/civicrm.git
 [submodule "sites/all/modules/contrib/og"]
 	path = sites/all/modules/contrib/og
 	url = http://git.drupal.org/project/og.git

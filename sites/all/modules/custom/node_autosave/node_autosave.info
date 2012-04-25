@@ -1,0 +1,12 @@
+;$Id$
+name = Node Autosave
+description = This module provides functionality for automatic saving of the node in the specialized CTools Object Cache and restoring it.
+package = Other
+core = 7.x
+
+dependencies[] = ctools
+
+files[] = node_autosave.module
+files[] = node_autosave.admin.inc
+files[] = node_autosave.install
+

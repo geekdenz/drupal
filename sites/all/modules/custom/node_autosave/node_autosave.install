@@ -1,0 +1,30 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Install file
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function node_autosave_uninstall() {
+  variable_del('node_autosave_content_types');
+  variable_del('node_autosave_timer');
+  variable_del('node_autosave_presave_button_position');
+  variable_del('node_autosave_presave_button_text');
+  variable_del('node_autosave_presave_button_weight');
+  variable_del('node_autosave_restore_button_position');
+  variable_del('node_autosave_restore_button_text');
+  variable_del('node_autosave_restore_button_weight');
+  variable_del('node_autosave_notice_position');
+  variable_del('node_autosave_notice_prefix');
+  variable_del('node_autosave_notice_suffix');
+  variable_del('node_autosave_notice_date_format');
+  variable_del('node_autosave_notice_custom_date_format');
+  variable_del('node_autosave_notice_weight');
+  variable_del('node_autosave_top_container_type');
+  variable_del('node_autosave_top_container_title');
+  variable_del('node_autosave_top_container_weight');
+}

@@ -1,0 +1,16 @@
+name = Entity Reference
+description = Provides a field that can reference other entities.
+core = 7.x
+package = Fields
+dependencies[] = entity
+dependencies[] = ctools
+
+; Migrate handler.
+files[] = entityreference.migrate.inc
+
+; Our plugins interfaces and abstract implementations.
+files[] = plugins/selection/abstract.inc
+files[] = plugins/behavior/abstract.inc
+
+; Tests.
+files[] = tests/entityreference.handlers.test

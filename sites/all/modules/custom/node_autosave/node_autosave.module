@@ -1,0 +1,417 @@
+<?php
+
+define('NODE_AUTOSAVE_CONTROL_POSITION_TOP',    0);
+define('NODE_AUTOSAVE_CONTROL_POSITION_BOTTOM', 1);
+define('NODE_AUTOSAVE_CONTROL_POSITION_BOTH',   2);
+define('NODE_AUTOSAVE_CONTROL_POSITION_NONE',   3);
+
+/**
+ * Implements hook_permission().
+ * @return array
+ *    List of permissions.
+ */
+function node_autosave_permission() {
+  return array(
+    'administer node autosave' => array(
+       'title' => t('administer node autosave'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ * @return array
+ *    List of menu items.
+ */
+function node_autosave_menu() {
+  $items = array();
+  $items['admin/config/user-interface/node-autosave'] = array(
+    'title' => 'Node autosave',
+    'description' => 'Node autosave configuration page',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('node_autosave_admin_form'),
+    'access arguments' => array('administer node autosave'),
+    'file' => 'node_autosave.admin.inc',
+  );
+  $items['js/node-autosave'] = array(
+    'title' => 'Node autosave',
+    'description' => 'Performs node autosave',
+    'page callback' => 'node_autosave_save',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['node-autosave/discard/%/%'] = array(
+    'title' => 'Node autosave discard',
+    'description' => 'Discards autosaved node',
+    'page callback' => 'node_autosave_discard',
+    'page arguments' => array(2, 3),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_form_form_id_alter().
+ * @param $form
+ * @param $form_state
+ * @param $form_id
+ * @return void
+ */
+function node_autosave_form_node_form_alter(&$form, &$form_state, $form_id) {
+  $node_autosave_node_types = variable_get('node_autosave_content_types', array());
+  if (in_array($form['type']['#value'], $node_autosave_node_types)) {
+    global $user;
+    drupal_add_js(drupal_get_path('module', 'node_autosave') . "/node_autosave.js", 'file');
+    drupal_add_js(array(
+      'NodeAutosave' => array(
+        'formId' => $form['#id'],
+        'submitUrl' => url('js/node-autosave'),
+        'autosavePeriod' => variable_get('node_autosave_timer', 180),
+      )
+    ), 'setting');
+    // Make sure that form is cached even if there are no ajax element on the form
+    $form_state['cache'] = TRUE;
+    drupal_add_js("misc/ajax.js");
+    drupal_add_js("misc/jquery.form.js");
+    if (_node_autosave_need_container()) {
+      $form['node_autosave_wrapper'] = array(
+        '#prefix' => '<div id="node-autosave-controls">',
+        '#suffix' => '</div>',
+        '#type' =>  variable_get('node_autosave_top_container_type', 'fieldset'),
+        '#title' => check_plain(variable_get('node_autosave_top_container_title', t('Autosave'))),
+        '#collapsible' => FALSE,
+        '#weight' => variable_get('node_autosave_top_container_weight', -100),
+      );
+    }
+
+    $presave_button = array(
+      '#type' => 'button',
+      '#name' => 'node_autosave_save_button',
+      '#value' => variable_get('node_autosave_presave_button_text', t('Presave')),
+      '#weight' => variable_get('node_autosave_presave_button_weight', 0),
+      '#attributes' => array('class' => array('nodeautosave-button')),
+      '#limit_validation_errors' => array(
+        array('node_autosave_save_button_top'),
+        array('field_taxonomy_main', 'en'),
+        array('field_taxonomy_minor', 'en'),
+      )
+    );
+
+    $restore_button =  array(
+      '#type' => 'submit',
+      '#value' => variable_get('node_autosave_restore_button_text', t('Restore')),
+      '#name' => 'node_autosave_restore_button',
+      '#submit' => array('node_autosave_restore_submit'),
+      '#weight' => variable_get('node_autosave_restore_button_weight', 0),
+      '#limit_validation_errors' => array(),
+      '#attributes' => array('class' => array('node-autosave-restore-button')),
+    );
+
+    // Try to load autosaved node.
+    $autosaved_node = _node_autosave_page_get_page_cache('node_autosave:' . $user->uid . ':' . $form['type']['#value'] . ':' .  (isset($form['nid']['#value']) ? $form['nid']['#value'] : 'new'));
+    $notice = array(
+      '#prefix' => '<div class="node-autosave-notice">',
+      '#suffix' => '</div>',
+      '#weight' => variable_get('node_autosave_notice_weight', -13),
+      '#name' => 'autosave_node_notice'
+    );
+    if ($autosaved_node || (isset($form_state['storage']['autosaved']) && $form_state['storage']['autosaved'])) {
+      $restored = &drupal_static(__FUNCTION__);
+      if (variable_get('node_autosave_autoload', 0) && !isset($restored) && !isset($form_state['values'])) {
+        $restored = TRUE;
+        $form_state = form_state_defaults();
+        $form_state['values'] = $_POST = array();
+        $form_state['build_info']['args'] = array($autosaved_node);
+        $form_state['cache'] = TRUE;
+        $form = drupal_retrieve_form($form_id, $form_state);
+        drupal_prepare_form($form_id, $form, $form_state);
+        $time = $autosaved_node->autosave_time;
+        $format_type = variable_get('node_autosave_notice_date_format', 'short');
+        $custom_format = $format_type == 'custom' ? variable_get('node_autosave_notice_custom_date_format', '') : NULL;
+        $discard_url = url('node-autosave/discard/' . $form['type']['#value'] . '/' . (isset($form['nid']['#value']) ? $form['nid']['#value'] : 'new'), array('query' => drupal_get_destination()));
+        drupal_set_message(t('Form was populated with autosaved node from @date. You can <a href="@url">discard</a> changes.', array('@date' => node_autosave_map_date($time, $format_type, $custom_format), '@url' => $discard_url)), 'warning');
+      }
+
+      // If the form was just autosaved, then use "save time" variable from the form_state, as long as node isn't saved yet,
+      // it just being rebuilt.
+      $time = (isset($form_state['storage']['autosaved']) && $form_state['storage']['autosave_time']) ? $form_state['storage']['autosave_time'] : $autosaved_node->autosave_time;
+      $format_type = variable_get('node_autosave_notice_date_format', 'short');
+      $custom_format = $format_type == 'custom' ? variable_get('node_autosave_notice_custom_date_format', '') : NULL;
+      $notice['#markup'] = check_plain(variable_get('node_autosave_notice_prefix', t('Node is autosaved'))) . '&nbsp;' . node_autosave_map_date($time, $format_type, $custom_format) . '&nbsp;' . check_plain(variable_get('node_autosave_notice_suffix', ''));
+    }
+    else {
+      $restore_button['#attributes']['disabled'] = 'disabled';
+    }
+    node_autosave_locate_control($form, variable_get('node_autosave_presave_button_position', NODE_AUTOSAVE_CONTROL_POSITION_BOTH), $presave_button);
+    // We need this button in the bottom of the form, to handle autosave triggered by timer.
+    if (!isset($form['actions']['node_autosave_save_button_bottom'])) {
+      $presave_button['#attributes']['style'] = 'display:none;';
+      $form['actions']['node_autosave_save_button_bottom'] = $presave_button;
+    }
+    node_autosave_locate_control($form, variable_get('node_autosave_restore_button_position', NODE_AUTOSAVE_CONTROL_POSITION_BOTH), $restore_button);
+    node_autosave_locate_control($form, variable_get('node_autosave_notice_position', NODE_AUTOSAVE_CONTROL_POSITION_BOTH), $notice);
+  }
+}
+
+/**
+ * Implements hook_autosave_node_presave().
+ * @param  $node
+ */
+function node_autosave_node_presave($node) {
+  global $user;
+  _node_autosave_page_clear_page_cache('node_autosave:' . $user->uid . ':' . $node->type . ':' . ($node->nid ? $node->nid : 'new'));
+}
+
+/**
+ * Ajax handler for autosave callback.
+ * Builds the node object from user input and saves it to cache.
+ */
+function node_autosave_save() {
+  if (isset($_POST['form_id'])) {
+    global $user;
+    list($form, $form_state) = ajax_get_form();
+    $form_state['storage']['autosaved'] = TRUE;
+    $form_state['storage']['autosave_time'] = REQUEST_TIME;
+    $form_state['rebuild'] = FALSE;
+    $form_state['executed'] = $form_state['no_cache'] = TRUE;
+    $form['#validate'][] = 'node_autosave_remove_limit_validation';
+    drupal_process_form($form['#form_id'], $form, $form_state);
+    form_clear_error();
+    $errors = &drupal_static('form_set_error', array());
+    $errors = array();
+    unset($_SESSION['messages']['error']);
+
+    $node = node_form_submit_build_node($form, $form_state);
+    $node->autosave_time = REQUEST_TIME;
+    _node_autosave_page_set_page_cache('node_autosave:' . $user->uid . ':' . $node->type . ':' . ($node->nid ? $node->nid : 'new'), $node);
+
+    // We need to set plain text type in case our form has file fields.
+    drupal_add_http_header('Content-Type', 'text/plain; charset=utf-8');
+    $data = array();
+    //If we have elements need to be refreshed, then add them to json response.
+    $time = (isset($form_state['storage']['autosaved']) && $form_state['storage']['autosave_time']) ? $form_state['storage']['autosave_time'] : $node->autosave_time;
+    $format_type = variable_get('node_autosave_notice_date_format', 'short');
+    $custom_format = $format_type == 'custom' ? variable_get('node_autosave_notice_custom_date_format', '') : NULL;
+    $html = '<div class="node-autosave-notice">' . check_plain(variable_get('node_autosave_notice_prefix', t('Node is autosaved')));
+    $html .= '&nbsp;' . node_autosave_map_date($time, $format_type, $custom_format) . '&nbsp;';
+    $html .= check_plain(variable_get('node_autosave_notice_suffix', '')) . '</div>';
+    $data['notice'] = array(
+      'selector' => '.node-autosave-notice',
+      'data' => $html,
+    );
+    print drupal_json_encode($data);
+  }
+}
+
+function node_autosave_remove_limit_validation($form, &$form_state) {
+  unset($form_state['triggering_element']);
+}
+
+/**
+ * Submit handler for restore button.
+ * The function collects user input and builds node object for caching.
+ * @param  $form
+ * @param  $form_state
+ */
+function node_autosave_restore_submit($form, &$form_state) {
+  global $user;
+  $autosaved_node = _node_autosave_page_get_page_cache('node_autosave:' . $user->uid . ':' . $form['type']['#value'] . ':' . (isset($form['nid']['#value']) ? $form['nid']['#value'] : 'new'));
+  // remember a clicked button to restore it after form_state reset. We will need it in taxonomy autocomplete widget.
+  if ($autosaved_node) {
+    $clicked_button = $form_state['clicked_button'];
+    $form_state = form_state_defaults();
+    $form_state['rebuild'] = TRUE;
+    $form_state['values'] = $_POST = array();
+    if ($clicked_button) {
+      $form_state['clicked_button'] = $clicked_button;
+    }
+    /* Set autosaved node as a parameter for node construction functions
+     * @see node_form()
+     */
+    $form_state['build_info']['args'] = array($autosaved_node);
+  }
+}
+
+/**
+ * Implements hook_field_widget_properties_ENTITY_TYPE_alter().
+ *
+ * To handle the taxonomy autocomplete field we need to define our own form element declaration,
+ * as long as in the default version #default_value is populated only with existing terms. But in our case
+ * we don't save term to database when autosave occurs and we need to restore just name typed in the field.
+ * So here we change $widget['module'] value to make widget to use our form element declaration.
+ */
+function node_autosave_field_widget_properties_node_alter(&$widget, $context) {
+  $node_autosave_node_types = variable_get('node_autosave_content_types', array());
+  if ($widget['type'] == 'taxonomy_autocomplete' && in_array($context['entity']->type, $node_autosave_node_types)) {
+    $widget['module'] = 'node_autosave_taxonomy';
+  }
+}
+
+/**
+ * Declaration of the form element for taxonomy autocomplete field.
+ */
+function node_autosave_taxonomy_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  // if the autosave is configured for node type we currently build form for and restore button was clicked,
+  // then we need to populate #default_value with terms from the autosaved node. In other cases we just use standard
+  // function.
+  $restore = &drupal_static('node_autosave_form_node_form_alter');
+  if (isset($form_state['clicked_button']) && $form_state['clicked_button']['#name'] == 'node_autosave_restore_button' ||
+     (variable_get('node_autosave_autoload', 0) && $restore && !empty($items))) {
+    $tags = array();
+    foreach ($items as $item) {
+      $tags[] = isset($item['taxonomy_term']) ? $item['taxonomy_term'] : $item['name'];
+    }
+
+    $element += array(
+      '#type' => 'textfield',
+      '#default_value' => implode(', ', $tags),
+      '#autocomplete_path' => $instance['widget']['settings']['autocomplete_path'] . '/' . $field['field_name'],
+      '#size' => $instance['widget']['settings']['size'],
+      '#maxlength' => 1024,
+      '#element_validate' => array('taxonomy_autocomplete_validate'),
+    );
+
+    return $element;
+  }
+  else {
+    return taxonomy_field_widget_form($form, $form_state, $field, $instance, $langcode, $items, $delta, $element);
+  }
+}
+
+/**
+ * @param  $form
+ *    form array to add new element to.
+ * @param  $position
+ *    position to place the element
+ * @param  $element
+ *    form element array
+ */
+function node_autosave_locate_control(&$form, $position, $element) {
+  switch ($position) {
+    case NODE_AUTOSAVE_CONTROL_POSITION_TOP:
+      $form['node_autosave_wrapper'][$element['#name'] . '_top'] = $element;
+      break;
+    case NODE_AUTOSAVE_CONTROL_POSITION_BOTTOM:
+      $form['actions'][$element['#name'] . '_bottom'] = $element;
+      break;
+    case NODE_AUTOSAVE_CONTROL_POSITION_BOTH:
+      $form['node_autosave_wrapper'][$element['#name'] . '_top'] = $element;
+      $form['actions'][$element['#name'] . '_bottom'] = $element;
+      break;
+  }
+}
+
+/**
+ * Format date wrapper
+ * @param  $time
+ *    time to be formatted.
+ * @param  $format_type
+ *    date format can be "short", "medium", "long" and "custom".
+ * @param null $format
+ *    used only if $format_time is equal to "custom".
+ * @return
+ *    formatted date
+ */
+function node_autosave_map_date($time, $format_type, $format = NULL) {
+  $maps = array(
+    'short' => format_date($time, 'short'),
+    'medium' => format_date($time, 'medium'),
+    'long' => format_date($time, 'long'),
+    'custom' => format_date($time, 'custom', $format),
+  );
+  return $maps[$format_type];
+}
+
+/**
+ * Checks whether any elements need to be located in the top container.
+ * @return bool
+ *    TRUE if at least one element is located in the top container.
+ */
+function _node_autosave_need_container() {
+  if (variable_get('node_autosave_presave_button_position', 0) == NODE_AUTOSAVE_CONTROL_POSITION_TOP ||
+      variable_get('node_autosave_presave_button_position', 0) == NODE_AUTOSAVE_CONTROL_POSITION_BOTH) {
+    return TRUE;
+  }
+  elseif (variable_get('node_autosave_restore_button_position', 0) == NODE_AUTOSAVE_CONTROL_POSITION_TOP ||
+      variable_get('node_autosave_restore_button_position', 0) == NODE_AUTOSAVE_CONTROL_POSITION_BOTH) {
+    return TRUE;
+  }
+  elseif (variable_get('node_autosave_notice_position', 0) == NODE_AUTOSAVE_CONTROL_POSITION_TOP ||
+      variable_get('node_autosave_notice_position', 0) == NODE_AUTOSAVE_CONTROL_POSITION_BOTH) {
+    return TRUE;
+  }
+}
+
+/**
+ * Menu callback function. Clears cache for particular node.
+ * @param $type
+ * @param $id
+ * @return void
+ */
+function node_autosave_discard($type, $id) {
+  global $user;
+  _node_autosave_page_clear_page_cache('node_autosave:' . $user->uid . ':' . $type . ':' . $id);
+  drupal_goto();
+}
+
+/**
+ * Get the cached changes to a given task handler.
+ */
+function _node_autosave_page_get_page_cache($name) {
+  switch(variable_get('node_autosave_storage', 'ctools_cache')) {
+    case 'ctools_cache':
+      ctools_include('object-cache');
+      return ctools_object_cache_get('node_autosave_page', $name);
+      break;
+    case 'session':
+      return isset($_SESSION[$name]) ? $_SESSION[$name] : FALSE;
+      break;
+  }
+  return FALSE;
+}
+
+/**
+ * Store changes to a task handler in the object cache.
+ */
+function _node_autosave_page_set_page_cache($name, $node) {
+  switch(variable_get('node_autosave_storage', 'ctools_cache')) {
+    case 'ctools_cache':
+      ctools_include('object-cache');
+      ctools_object_cache_set('node_autosave_page', $name, $node);
+      break;
+    case 'session':
+      $_SESSION[$name] = $node;
+      break;
+  }
+}
+
+/**
+ * Remove an item from the object cache.
+ */
+function _node_autosave_page_clear_page_cache($name) {
+  switch(variable_get('node_autosave_storage', 'ctools_cache')) {
+    case 'ctools_cache':
+      ctools_include('object-cache');
+      ctools_object_cache_clear('node_autosave_page', $name);
+      break;
+    case 'session':
+      unset($_SESSION[$name]);
+      break;
+  }
+}
+
+/**
+ * Helper function, resets html ids.
+ * @param $element
+ * @return void
+ */
+function _node_autosave_reset_html_ids($element) {
+  if (isset($element['#id'])) {
+    $ids = &drupal_static('drupal_html_id');
+    unset($ids[$element['#id']]);
+  }
+  foreach (element_children($element) as $key) {
+    _node_autosave_reset_html_ids($element[$key]);
+  }
+}

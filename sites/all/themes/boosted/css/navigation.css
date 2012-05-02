@@ -40,6 +40,8 @@ li a.active {
 
 #navigation {
   /* overflow: hidden; */ /* Sometimes you want to prevent overlapping with main div. */
+  right: 0;
+  width: 50%;
 }
 
 #navigation .block {

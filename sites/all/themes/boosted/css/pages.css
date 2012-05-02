@@ -15,6 +15,7 @@
 body {
   margin: 0;
   padding: 0;
+  background-color: #EEE;
 }
 
 #page {
@@ -57,11 +58,43 @@ body {
 #name-and-slogan { /* Wrapper for website name and slogan */
   float: left;
 }
-
+/* Embedded Fonts */
+@font-face {
+  font-family: 'PT Serif';
+  font-style: italic;
+  font-weight: normal;
+  src: local('PT Serif Italic'), local('PTSerif-Italic'), url('http://themes.googleusercontent.com/static/fonts/ptserif/v4/03aPdn7fFF3H6ngCgAlQzBsxEYwM7FgeyaSgU71cLG0.woff') format('woff');
+}
+@font-face {
+  font-family: 'PT Serif';
+  font-style: normal;
+  font-weight: bold;
+  src: local('PT Serif Bold'), local('PTSerif-Bold'), url('http://themes.googleusercontent.com/static/fonts/ptserif/v4/QABk9IxT-LFTJ_dQzv7xpIbN6UDyHWBl620a-IRfuBk.woff') format('woff');
+}
+@font-face {
+  font-family: 'PT Serif';
+  font-style: italic;
+  font-weight: bold;
+  src: local('PT Serif Bold Italic'), local('PTSerif-BoldItalic'), url('http://themes.googleusercontent.com/static/fonts/ptserif/v4/Foydq9xJp--nfYIx2TBz9QFhaRv2pGgT5Kf0An0s4MM.woff') format('woff');
+}
+@font-face {
+  font-family: 'PT Serif';
+  font-style: normal;
+  font-weight: normal;
+  src: local('PT Serif'), local('PTSerif-Regular'), url('http://themes.googleusercontent.com/static/fonts/ptserif/v4/sDRi4fY9bOiJUbgq53yZCfesZW2xOQ-xsNqO47m55DA.woff') format('woff');
+}
+* {
+  font-family: 'PT Serif', arial, serif;
+}
 #site-name { /* The name of the website */
   margin: 0;
   font-size: 2em;
   line-height: 1.5em;
+  font-size: 40px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1em;
 }
 #site-name a:link,
 #site-name a:visited {
@@ -76,6 +109,9 @@ body {
 #site-slogan { /* The slogan (or tagline) of a website */
   margin: 0;
   font-size: 1em;
+  font-style: italic;
+  font-weight: normal;
+  color: #777;
 }
 
 .region-header { /* Wrapper for any blocks placed in the header region */
@@ -92,6 +128,20 @@ body {
 /*
  * Content
  */
+
+/* General Items */
+select, button, input, option {
+  padding: 2px 5px;
+  color: #111;
+  background-color: #E0D3AD;
+  font-family: 'PT Serif', arial, serif;
+}
+a {
+  color: #3B2C01;
+}
+#user-login-form ul {
+  list-style: none;
+}
 
 #content {
 }
@@ -228,4 +278,9 @@ span.field-label { /* The inline field label used by the Fences module */
  */
 
 .region-bottom { /* Wrapper for any blocks placed in the page bottom region */
+}
+
+/* Most specific */
+#edit-search-block-form--2 {
+  width: 7em;
 }

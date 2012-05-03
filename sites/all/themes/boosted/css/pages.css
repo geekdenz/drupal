@@ -284,3 +284,7 @@ span.field-label { /* The inline field label used by the Fences module */
 #edit-search-block-form--2 {
   width: 7em;
 }
+/* TODO: fix the following */
+#navigation {
+  display: none;
+}

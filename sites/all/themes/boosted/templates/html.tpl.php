@@ -87,16 +87,6 @@
   <meta http-equiv="cleartype" content="on">
 
   <?php print $styles; ?>
-  <?php print $scripts; ?>
-  <?php if ($add_respond_js): ?>
-    <!--[if lt IE 9]>
-    <script src="<?php print $base_path . $path_to_zen; ?>/js/html5-respond.js"></script>
-    <![endif]-->
-  <?php elseif ($add_html5_shim): ?>
-    <!--[if lt IE 9]>
-    <script src="<?php print $base_path . $path_to_zen; ?>/js/html5.js"></script>
-    <![endif]-->
-  <?php endif; ?>
 </head>
 <body class="<?php print $classes; ?>" <?php print $attributes;?>>
   <?php if ($skip_link_text && $skip_link_anchor): ?>
@@ -107,5 +97,15 @@
   <?php print $page_top; ?>
   <?php print $page; ?>
   <?php print $page_bottom; ?>
+  <?php if ($add_respond_js): ?>
+    <!--[if lt IE 9]>
+    <script src="<?php print $base_path . $path_to_zen; ?>/js/html5-respond.js"></script>
+    <![endif]-->
+  <?php elseif ($add_html5_shim): ?>
+    <!--[if lt IE 9]>
+    <script src="<?php print $base_path . $path_to_zen; ?>/js/html5.js"></script>
+    <![endif]-->
+  <?php endif; ?>
+  <?php print $scripts; ?>
 </body>
 </html>

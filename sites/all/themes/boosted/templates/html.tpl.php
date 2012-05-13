@@ -96,7 +96,6 @@
   <?php endif; ?>
   <?php print $page_top; ?>
   <?php print $page; ?>
-  <?php print $page_bottom; ?>
   <?php if ($add_respond_js): ?>
     <!--[if lt IE 9]>
     <script src="<?php print $base_path . $path_to_zen; ?>/js/html5-respond.js"></script>
@@ -107,5 +106,6 @@
     <![endif]-->
   <?php endif; ?>
   <?php print $scripts; ?>
+  <?php print $page_bottom; ?>
 </body>
 </html>

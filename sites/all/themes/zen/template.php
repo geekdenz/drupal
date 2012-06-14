@@ -214,7 +214,9 @@ function zen_process_html_tag(&$variables) {
  */
 function zen_html_head_alter(&$head) {
   // Simplify the meta tag for character encoding.
-  $head['system_meta_content_type']['#attributes'] = array('charset' => str_replace('text/html; charset=', '', $head['system_meta_content_type']['#attributes']['content']));
+  if (isset($head['system_meta_content_type']['#attributes']['content'])) {
+    $head['system_meta_content_type']['#attributes'] = array('charset' => str_replace('text/html; charset=', '', $head['system_meta_content_type']['#attributes']['content']));
+  }
 }
 
 /**
@@ -247,6 +249,8 @@ function zen_preprocess_page(&$variables, $hook) {
  */
 function zen_preprocess_maintenance_page(&$variables, $hook) {
   zen_preprocess_html($variables, $hook);
+  // There's nothing maintenance-related in zen_preprocess_page(). Yet.
+  //zen_preprocess_page($variables, $hook);
 }
 
 /**

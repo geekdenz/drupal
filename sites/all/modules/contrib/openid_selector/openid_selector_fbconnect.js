@@ -13,7 +13,8 @@ delete providers_large[replace_id];
 
 providers_large.facebook = {
   name: 'Facebook',
-  url: "javascript: $('#fbconnect_button-wrapper a').click();"
+  //url: "javascript: $('#fbconnect_button-wrapper a').click();"
+  url: "javascript: $('a.fb_button').click();"
 };
 
 openid.getBoxHTML__fbconnect = openid.getBoxHTML;
@@ -32,6 +33,7 @@ openid.getBoxHTML = function (box_id, provider, box_size, index) {
 }
 
 Drupal.behaviors.openid_selector_fbconnect = { attach: function (context) {
-  $('#fbconnect_button-wrapper').hide();
+  //$('#fbconnect_button-wrapper').hide();
+  $('a.fb_button').hide();
 }}
 })(jQuery);

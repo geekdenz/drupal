@@ -87,6 +87,7 @@
   <meta http-equiv="cleartype" content="on">
 
   <?php print $styles; ?>
+  <?php print $scripts; ?>
 </head>
 <body class="<?php print $classes; ?>" <?php print $attributes;?>>
   <?php if ($skip_link_text && $skip_link_anchor): ?>
@@ -105,7 +106,6 @@
     <script src="<?php print $base_path . $path_to_zen; ?>/js/html5.js"></script>
     <![endif]-->
   <?php endif; ?>
-  <?php print $scripts; ?>
   <?php print $page_bottom; ?>
 </body>
 </html>

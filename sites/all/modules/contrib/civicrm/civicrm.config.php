@@ -67,7 +67,9 @@ function civicrm_conf_init() {
         // make it relative to civicrm.config.php, else php makes it relative
         // to the script that invokes it
         // simple check to see if this is under sites/all or just modules
-        if ( strpos( $currentDir, 'sites' . DIRECTORY_SEPARATOR . 'all' . DIRECTORY_SEPARATOR . 'modules' ) !== false ) {
+        if ( strpos( $currentDir, 'sites' . DIRECTORY_SEPARATOR . 'all' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'contrib' ) !== false ) {
+            $confdir = $currentDir . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..';
+        } else if ( strpos( $currentDir, 'sites' . DIRECTORY_SEPARATOR . 'all' . DIRECTORY_SEPARATOR . 'modules' ) !== false ) {
             // seems like this is in drupal5 dir location
             $confdir = $currentDir . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..';
         } else if ( strpos( $currentDir, 'plugins' . DIRECTORY_SEPARATOR . 'civicrm' . DIRECTORY_SEPARATOR . 'civicrm' ) !==false ){

@@ -20,7 +20,7 @@
  */
 function civicrm_api($entity, $action, $params, $extra = NULL) {
   try {
-    require_once ('api/v3/utils.php');
+    require_once ('v3/utils.php');
     if ( ! is_array( $params ) ) {
         throw new Exception ('Input variable `params` is not an array');
     }

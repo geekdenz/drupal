@@ -106,7 +106,7 @@ DirectoryIndex index.php index.html index.htm
   # Caching for anonymous users
   # Skip boost IF not get request OR uri has wrong dir OR cookie is set OR request came from this server OR https request
   RewriteCond %{REQUEST_METHOD} !^(GET|HEAD)$ [OR]
-  RewriteCond %{REQUEST_URI} (^/boosted/(admin|cache|misc|modules|sites|system|openid|themes|node/add|comment/reply))|(/(edit|user|user/(login|password|register))$) [OR]
+  RewriteCond %{REQUEST_URI} (^/dev/(admin|cache|misc|modules|sites|system|openid|themes|node/add|comment/reply))|(/(edit|user|user/(login|password|register))$) [OR]
   RewriteCond %{HTTPS} on [OR]
   RewriteCond %{HTTP_COOKIE} DRUPAL_UID [OR]
   RewriteCond %{ENV:REDIRECT_STATUS} 200
@@ -115,11 +115,11 @@ DirectoryIndex index.php index.html index.htm
   # GZIP
   RewriteCond %{HTTP:Accept-encoding} !gzip
   RewriteRule .* - [S=1]
-  RewriteCond %{DOCUMENT_ROOT}/boosted/cache/%{ENV:boostpath}/%{HTTP_HOST}%{REQUEST_URI}_%{QUERY_STRING}\.html -s
+  RewriteCond %{DOCUMENT_ROOT}/dev/cache/%{ENV:boostpath}/%{HTTP_HOST}%{REQUEST_URI}_%{QUERY_STRING}\.html -s
   RewriteRule .* cache/%{ENV:boostpath}/%{HTTP_HOST}%{REQUEST_URI}_%{QUERY_STRING}\.html [L,T=text/html,E=no-gzip:1]
 
   # NORMAL
-  RewriteCond %{DOCUMENT_ROOT}/boosted/cache/%{ENV:boostpath}/%{HTTP_HOST}%{REQUEST_URI}_%{QUERY_STRING}\.html -s
+  RewriteCond %{DOCUMENT_ROOT}/dev/cache/%{ENV:boostpath}/%{HTTP_HOST}%{REQUEST_URI}_%{QUERY_STRING}\.html -s
   RewriteRule .* cache/%{ENV:boostpath}/%{HTTP_HOST}%{REQUEST_URI}_%{QUERY_STRING}\.html [L,T=text/html]
 
   ### BOOST END ###

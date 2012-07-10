@@ -43,7 +43,7 @@
  */
 function _civicrm_api3_initialize($useException = true )
 {
-    require_once '../../CRM/Core/Config.php';
+    require_once 'CRM/Core/Config.php';
     $config = CRM_Core_Config::singleton( );
     if ($useException) {
         CRM_Core_Error::setRaiseException();

@@ -31,7 +31,7 @@ function domain_get_expectedresult(){
       '1' => array( 
           'id' => '1',
           'name' => 'Default Domain Name',
-          'version' => '4.1.alpha1',
+          'version' => '4.2.alpha1',
           'domain_email' => '',
           'domain_phone' => array( 
               'phone_type' => '',

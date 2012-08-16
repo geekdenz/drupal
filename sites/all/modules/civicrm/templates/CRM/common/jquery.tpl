@@ -28,7 +28,12 @@
  * Cannot get rid of this since we use it for joomla, standalone, print
  * html profile etc
  *}
-<script type="text/javascript" src="{$config->resourceBase}packages/jquery/jquery.min.js"></script>
+<script type="text/javascript">//<![CDATA[
+if (jQuery)
+  $ = jQuery; /* hack to avoid jQuery conflict */
+else
+  document.write('<script type="text/javascript" src="{$config->resourceBase}packages/jquery/jquery.min.js"></scr'+'ipt>');
+//]]></script>
 <script type="text/javascript" src="{$config->resourceBase}packages/jquery/jquery-ui-1.8.16/js/jquery-ui-1.8.16.custom.min.js"></script>
 <style type="text/css">@import url("{$config->resourceBase}packages/jquery/jquery-ui-1.8.16/css/smoothness/jquery-ui-1.8.16.custom.css");</style>
 

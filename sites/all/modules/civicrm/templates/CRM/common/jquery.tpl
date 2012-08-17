@@ -30,10 +30,9 @@
  *}
 <script type="text/javascript">//<![CDATA[
 if (jQuery)
-  $ = jQuery; /* hack to avoid jQuery conflict */
-else
-  document.write('<script type="text/javascript" src="{$config->resourceBase}packages/jquery/jquery.min.js"></scr'+'ipt>');
+  djQuery = jQuery; /* hack to avoid jQuery conflict, this is Drupal's jQuery */
 //]]></script>
+<script type="text/javascript" src="{$config->resourceBase}packages/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="{$config->resourceBase}packages/jquery/jquery-ui-1.8.16/js/jquery-ui-1.8.16.custom.min.js"></script>
 <style type="text/css">@import url("{$config->resourceBase}packages/jquery/jquery-ui-1.8.16/css/smoothness/jquery-ui-1.8.16.custom.css");</style>
 
@@ -99,4 +98,10 @@ else
   <script type="text/javascript" src="{$l10nURL}"></script>
 {/if}
 
-<script type="text/javascript">var cj = jQuery.noConflict(); $ = cj;</script>
+<script type="text/javascript">
+  var cj = jQuery.noConflict(true); // remove all of civi's jQuery
+  if (djQuery) 
+    $ = jQuery = djQuery; // and get back Drupal's
+  else
+    $ = jQuery = cj;
+</script>

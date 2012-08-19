@@ -8,7 +8,7 @@
 function contribution_recur_delete_example(){
 $params = array( 
   'version' => 3,
-  'id' => '',
+  'id' => 1,
 );
 
   require_once 'api/api.php';

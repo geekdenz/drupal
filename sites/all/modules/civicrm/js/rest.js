@@ -39,38 +39,52 @@ var options {ajaxURL:"{$config->userFrameworkResourceURL}";
 
 (function($){
       var defaults = {
-    	  success: function(result,settings){
-    	      var successMsg = 'Saved &nbsp; <a href="#" id="closerestmsg">'+ settings.closetxt +'</a>'; 
-    	      $(settings.msgbox).addClass('msgok').html( successMsg ).show();
-    	      $("#closerestmsg").click(function(){$(settings.msgbox).fadeOut("slow");return false;});
-    	      return true;
-    	  },
-    	  error: function(result,settings){
-          if ($(settings.msgbox).length>0)  {
-      		  $(settings.msgbox).addClass('msgnok').html(result.error_message);
-          } else {
-            alert (result.error_message);
-          }
-    		  return false;
-        },
-    	  callBack: function(result,settings){
-    	    if (result.is_error == 1) {
-    	      return settings.error.call(this,result,settings);
-    		    return false;
-    	    }
-    	      return settings.success.call(this,result,settings);
-    	  },
-    	  closetxt: "<div class='icon close-icon' title='Close'>[X]</div>",
-    	  ajaxURL: "/civicrm/ajax/rest",
-    	  msgbox: '#restmsg'
-      };
+              success: function(result,settings){
+                  var successMsg = 'Saved &nbsp; <a href="#" id="closerestmsg">'+ settings.closetxt +'</a>'; 
+                  $(settings.msgbox).addClass('msgok').html( successMsg ).show();
+                  $("#closerestmsg").click(function(){$(settings.msgbox).fadeOut("slow");return false;});
+                  return true;
+              },
+              error: function(result,settings){
+              if ($(settings.msgbox).length>0)  {
+                  $(settings.msgbox).addClass('msgnok').html(result.error_message);
+              } else {
+                alert (result.error_message);
+              }
+                  return false;
+            },
+              callBack: function(result,settings){
+                if (result.is_error == 1) {
+                  return settings.error.call(this,result,settings);
+                    return false;
+                }
+                  return settings.success.call(this,result,settings);
+              },
+              closetxt: "<div class='icon close-icon' title='Close'>[X]</div>",
+              ajaxURL: "/civicrm/ajax/rest",
+              msgbox: '#restmsg'
+          },
+          /**
+           * ensure that API's URL is always working, regardless of CMS'
+           * root directory
+           */
+          fixApiUrl = function(ajaxUrl) {
+              var href = document.location.href,
+                  civiPositionIndex = href.indexOf('/civicrm'),
+                  urlFirstPart = href.substring(0, civiPositionIndex),
+                  fullApiUrl = urlFirstPart + ajaxUrl;
+              return fullApiUrl;
+          };
 
+      
       $.fn.crmAPI = function(entity,action,params,options) {
 //    	  params ['fnName'] = "civicrm/"+entity+"/"+action;
     	  params ['entity'] = entity;
     	  params ['action'] = action;
     	  params ['json'] = 1;
     	  var settings = $.extend({}, defaults, options);
+          // when Drupal root URL is not the root we need the following
+          settings.ajaxURL = fixApiUrl(settings.ajaxURL);
     	  $(settings.msgbox).removeClass('msgok').removeClass('msgnok').html("");
         $.ajax({
           url: settings.ajaxURL,

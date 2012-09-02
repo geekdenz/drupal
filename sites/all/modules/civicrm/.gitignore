@@ -1,0 +1,7 @@
+bin/setup.sh
+civicrm-version.php
+civicrm-version.txt
+civicrm.config.php
+authors.txt
+vendor
+tests/phpunit/CiviTest/civicrm.settings.php
